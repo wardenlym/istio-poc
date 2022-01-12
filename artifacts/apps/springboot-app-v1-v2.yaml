@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-app-svc
+  labels:
+    app: springboot-app
+    service: springboot-app
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: springboot-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-app-v1
+  labels:
+    app: springboot-app
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot-app
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: springboot-app
+        version: v1
+    spec:
+      containers:
+      - name: springboot-app
+        image: wardenlym/springboot-app:v1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        securityContext:
+          runAsUser: 1000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-app-v2
+  labels:
+    app: springboot-app
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot-app
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: springboot-app
+        version: v2
+    spec:
+      containers:
+      - name: springboot-app
+        image: wardenlym/springboot-app:v2
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        securityContext:
+          runAsUser: 1000
+---

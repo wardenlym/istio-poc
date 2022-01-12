@@ -1,0 +1,42 @@
+service
+
+virtualservice
+
+DestinationRule
+trafficPolicy
+loadBalancer
+
+SimpleLB
+
+OUND_ROBIN	
+循环策略。默认
+
+LEAST_CONN	
+最小请求负载均衡器使用 O(1) 算法，该算法选择两个随机健康主机并选择具有较少活动请求的主机。
+
+RANDOM	
+随机负载均衡器选择一个随机的健康主机。如果没有配置健康检查策略，随机负载均衡器的性能通常比轮询更好。
+
+PASSTHROUGH	
+此选项会将连接转发到调用者请求的原始 IP 地址，而不进行任何形式的负载平衡。必须小心使用此选项。它适用于高级用例。有关更多详细信息，请参阅 Envoy 中的原始目标负载均衡器。
+
+consistentHash
+
+https://istio.io/latest/zh/docs/reference/config/networking/destination-rule/
+
+httpHeaderName	string (oneof)	
+基于特定 HTTP 标头的散列。
+
+是的
+httpCookie	HTTPCookie (oneof)	
+基于 HTTP cookie 的哈希。
+
+是的
+useSourceIp	bool (oneof)	
+基于源 IP 地址的哈希。
+
+是的
+minimumRingSize	uint64	
+用于哈希环的最小虚拟节点数。默认为 1024。较大的环尺寸会导致更精细的负载分布。如果负载平衡池中的主机数量大于环大小，则每个主机将被分配一个虚拟节点。
+
+不

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: golang-app-data-svc
+  labels:
+    app: golang-app-data
+    service: golang-app-data
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: golang-app-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: golang-app-data
+  labels:
+    app: golang-app-data
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: golang-app-data
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: golang-app-data
+        version: v1
+    spec:
+      containers:
+      - name: golang-app-data
+        image: wardenlym/golang-app-data:v1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        securityContext:
+          runAsUser: 1000
+---

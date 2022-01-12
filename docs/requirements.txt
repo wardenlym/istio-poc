@@ -1,0 +1,20 @@
+华为云HPA功能调研
+Istio功能PoC
+SpringCloud 迁移到 Istio 调研
+
+
+要做的事
+copy readme（从spring cloud迁移到istio）
+istio bookinfo demo
+
+
+
+istio做服务发现的方案
+istio做熔断的方案
+istio做调用链追踪的方案
+
+
+nacos: 服务发现，配置中心  istio集成nacos
+sentinel: 熔断            istio集成sentinel
+knif4j: 接口文档
+skywalking: 调用链       istio 集成 skywalking
