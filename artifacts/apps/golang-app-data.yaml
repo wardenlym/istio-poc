@@ -12,6 +12,18 @@ spec:
   selector:
     app: golang-app-data
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: golang-app-data-cm
+data:
+  config-data.json: |
+    {
+      "key1": "value1",
+      "key2": "value2"
+    }
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -39,4 +51,15 @@ spec:
         - containerPort: 8080
         securityContext:
           runAsUser: 1000
+        volumeMounts:
+        - name: data-from-configmap
+          mountPath: "/app/config"
+          readOnly: true
+      volumes:
+        - name: data-from-configmap
+          configMap:
+            name: golang-app-data-cm
+            items:
+            - key: config-data.json
+              path: config-data.json
 ---

@@ -8,6 +8,13 @@ https://blog.csdn.net/sz85850597/article/details/114178839
 ENV 是在容器启动的时候注入的，启动之后 kubernetes 就不会再改变环境变量的值，且同一个 namespace 中的 pod 的环境变量是不断累加的，参考 Kubernetes中的服务发现与docker容器间的环境变量传递源码探究。为了更新容器中使用 ConfigMap 挂载的配置，需要通过滚动更新 pod 的方式来强制重新挂载 ConfigMap。
 
 
+
+你可以使用四种方式来使用 ConfigMap 配置 Pod 中的容器：
+
+在容器命令和参数内
+容器的环境变量
+在只读卷里面添加一个文件，让应用来读取
+
 auto reloader?
 
 https://github.com/stakater/Reloader

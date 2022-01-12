@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -44,12 +45,14 @@ func HelloServer(w http.ResponseWriter, r *http.Request) {
 		addHeader(req, r, "x-b3-sampled")
 		addHeader(req, r, "x-b3-flags")
 		addHeader(req, r, "x-ot-span-context")
-
-		addHeader(req, r, "x-cloud-trace-context")
-		addHeader(req, r, "traceparent")
-		addHeader(req, r, "grpc-trace-bin")
 	}
 
 	http.DefaultClient.Do(req)
-	fmt.Fprintf(w, "<data from golang-app-data>\n")
+
+	data, err := ioutil.ReadFile("config/config-data.json")
+	if err != nil {
+		data = []byte(err.Error())
+	}
+
+	fmt.Fprintf(w, "<data from golang-app-data: [%s] >\n", string(data))
 }
