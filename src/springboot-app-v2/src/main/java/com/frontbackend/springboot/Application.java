@@ -1,8 +1,5 @@
 package com.frontbackend.springboot;
 
-import java.net.URI;
-import java.util.Map;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpEntity;
@@ -40,7 +37,7 @@ public class Application {
         // return "response from: springboot app V2, args: " + response;
         ResponseEntity<String> response = restTemplate.exchange(
             "http://golang-app-data-svc:8080", HttpMethod.GET, new HttpEntity<Object>(headers), String.class);
-            
+
         return "response from: springboot app V2, args: " + response.getBody();
     }
 

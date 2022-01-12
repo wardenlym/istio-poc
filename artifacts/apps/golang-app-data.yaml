@@ -15,7 +15,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: golang-app-data
+  name: golang-app-data-v1
   labels:
     app: golang-app-data
     version: v1
