@@ -1,10 +1,12 @@
 https://blog.csdn.net/sz85850597/article/details/114178839
 
 
+https://kubernetes.io/zh/docs/concepts/configuration/configmap/
+
 更新 ConfigMap 后：
 
 使用该 ConfigMap 挂载的 Env 不会同步更新
-使用该 ConfigMap 挂载的 Volume 中的数据需要一段时间（实测大概10秒）才能同步更新
+使用该 ConfigMap 挂载的 Volume 中的数据需要一段时间（实测大概几秒）才能同步更新
 ENV 是在容器启动的时候注入的，启动之后 kubernetes 就不会再改变环境变量的值，且同一个 namespace 中的 pod 的环境变量是不断累加的，参考 Kubernetes中的服务发现与docker容器间的环境变量传递源码探究。为了更新容器中使用 ConfigMap 挂载的配置，需要通过滚动更新 pod 的方式来强制重新挂载 ConfigMap。
 
 
@@ -18,3 +20,95 @@ ENV 是在容器启动的时候注入的，启动之后 kubernetes 就不会再�
 auto reloader?
 
 https://github.com/stakater/Reloader
+
+
+https://developers.redhat.com/blog/2017/10/03/configuring-spring-boot-kubernetes-configmap#setup
+
+有两种使用 ConfigMaps 的方法，
+
+ConfigMaps 作为环境变量
+将 ConfigMap 挂载为文件
+
+
+https://blog.fleeto.us/post/kube-cm-sec-reloader/
+这个项目叫做 Reloader，它可以监控 Configmap/Secret 的变化，根据 Annotation 选择 Deployment，对相关 Deployment 进行滚动更新。
+
+#####
+
+机密数据：
+secret
+
+https://kubernetes.io/zh/docs/concepts/configuration/secret/
+
+
+## Spring Cloud Kubernetes 插件 可以直接把configmap作为properties集成
+
+除了创建 ConfigMap 对象并适当地设置查看权限之外，与 Spring Cloud Kubernetes 的集成还要求您将 ConfigMapmetadata.name与spring.application.name项目bootstrap.yml文件中配置的属性的值相匹配。要设置 ConfigMap：
+
+kind: ConfigMap
+apiVersion: v1
+metadata: 
+  # Must match the 'spring.application.name' property of the application
+  name: camel-config
+data:
+  application.properties: | 
+    # Override the configuration properties here
+    quickstart.recipients=direct:async-queue,direct:file,direct:mail 
+
+单个属性
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: demo
+data:
+  pool.size.core: 1
+  pool.size.max: 16
+
+
+或者整个yaml
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: demo
+data:
+  application.yaml: |-
+    pool:
+      size:
+        core: 1
+        max:16
+
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: demo
+data:
+  application.properties: |-
+    pool.size.core: 1
+    pool.size.max: 16
+
+
+部署 ConfigMap
+要部署 ConfigMap 并使其可供 Spring Boot 应用程序访问，请执行以下步骤。
+
+程序
+在您的 Spring Boot 应用程序中，使用外部化配置机制来访问 ConfigMap 属性源。例如，通过使用注解对 Java bean 进行@Configuration注解，可以通过 ConfigMap 注入 bean 的属性值。
+
+在项目的bootstrap.properties文件（或bootstrap.yaml文件）中，设置spring.application.name属性以匹配 ConfigMap 的名称。
+
+启用view与您的应用程序关联的服务帐户的权限（默认情况下，这将是名为 的服务帐户default）。例如，要将view权限添加到default服务帐户：
+
+https://access.redhat.com/documentation/en-us/red_hat_fuse/7.5/html/fuse_on_openshift_guide/integrate-spring-boot-with-kubernetes
+
+spring-cloud-starter-kubernetes-config
+
+https://cloud.tencent.com/developer/article/1679044
+https://blog.csdn.net/boling_cavalry/article/details/95804909
+
+
+https://github.com/redhat-developer-demos/spring-boot-configmaps-demo
+https://developers.redhat.com/blog/2017/10/03/configuring-spring-boot-kubernetes-configmap#setup
+
+

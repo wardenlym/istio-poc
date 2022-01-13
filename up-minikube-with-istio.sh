@@ -8,9 +8,6 @@ fi
 cd istio-1.12.1
 export PATH=$PWD/bin:$PATH
 
-minikube delete
-minikube start
-
 istioctl install --set profile=demo -y
 kubectl label namespace default istio-injection=enabled
 kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml

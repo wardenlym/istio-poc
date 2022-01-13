@@ -1,5 +1,6 @@
 package com.frontbackend.springboot;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpEntity;
@@ -38,7 +39,12 @@ public class Application {
         ResponseEntity<String> response = restTemplate.exchange(
             "http://golang-app-data-svc:8080", HttpMethod.GET, new HttpEntity<Object>(headers), String.class);
 
-        return "response from: springboot app V2, args: " + response.getBody();
+
+        String prefix = System.getenv().getOrDefault("GREETING_PREFIX", "Hi");
+        if (prefix == null) {
+            prefix = "Null!";
+        }
+        return prefix + " - response from: springboot app V2, args: " + response.getBody();
     }
 
     public static void main(String[] args) {
