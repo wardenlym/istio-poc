@@ -1,0 +1,43 @@
+k8s service
+
+ok
+
+https://kubernetes.io/zh/docs/concepts/services-networking/service/
+
+https://nacos.io/zh-cn/blog/dns-sd.html
+
+https://developer.aliyun.com/article/728115
+
+https://blog.fleeto.us/post/demystifying-kubernetes-service-discovery/
+https://jimmysong.io/kubernetes-handbook/practice/service-discovery-and-loadbalancing.html
+
+
+那么问题来了，既然可以通过上面的 ClusterIp 来实现集群内部的服务访问，那么如何注册服务呢？其实 K8s 并没有引入任何的注册中心，使用的就是 K8s 的 kube-dns 组件。然后 K8s 将 Service 的名称当做域名注册到 kube-dns 中，每一个Service在kube-dns中都有一条DNS记录，同时，如果有服务的ip更换，kube-dns自动会同步，对服务来说是不需要改动的。通过 Service 的名称就可以访问其提供的服务。那么问题又来了，如果一个服务的 pod 对应有多个，那么如何实现 LB？其实，最终通过 kube-proxy，实现负载均衡。也就是说kube-dns通过 servicename 找到指定 clusterIP，kube-proxy完成通过 clusterIP 到 PodIP 的过程。
+
+作者：小码哥Damon
+链接：https://juejin.cn/post/6977092597432975374
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+说到这，我们来看下 Service 的服务发现与负载均衡的策略，Service 负载分发策略有两种：
+
+RoundRobin：轮询模式，即轮询将请求转发到后端的各个 pod 上，其为默认模式。
+SessionAffinity：基于客户端 IP 地址进行会话保持的模式，类似 IP Hash 的方式，来实现服务的负载均衡。
+
+作者：小码哥Damon
+链接：https://juejin.cn/post/6977092597432975374
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+
+###
+结合nacos ?
+
+https://www.jianshu.com/p/17e40ead4cf0
+
+
+
+
+https://blog.fleeto.us/post/demystifying-kubernetes-service-discovery/
+
