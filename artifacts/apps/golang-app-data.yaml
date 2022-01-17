@@ -17,12 +17,13 @@ kind: ConfigMap
 metadata:
   name: golang-app-data-cm
 data:
-  config-data.json: |
+  config_value1: "42"            # 类属性键；每一个键都映射到一个简单的值
+  config_value2: "foo"
+  config-data.json: |            # 类文件键, 内容方便作为文件（支持换行等）
     {
       "key1": "value1",
       "key2": "value2"
     }
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -47,19 +48,30 @@ spec:
       - name: golang-app-data
         image: wardenlym/golang-app-data:v1
         imagePullPolicy: IfNotPresent
+        env:
+          - name: CONFIG_VALUE1          # 请注意这里是要注入的环境变量名，可自定义
+            valueFrom:
+              configMapKeyRef:
+                name: golang-app-data-cm # 这个值为 ConfigMap name
+                key: config_value1       # 需要取值的键
+          - name: CONFIG_VALUE2
+            valueFrom:
+              configMapKeyRef:
+                name: golang-app-data-cm
+                key: config_value2
         ports:
         - containerPort: 8080
         securityContext:
           runAsUser: 1000
         volumeMounts:
         - name: data-from-configmap
-          mountPath: "/app/config"
-          readOnly: true
+          mountPath: "/app/config"         # 映射在容器中的挂载目录
+          readOnly: true                   # 可以设置挂载后为只读文件
       volumes:
         - name: data-from-configmap
           configMap:
-            name: golang-app-data-cm
+            name: golang-app-data-cm       # config map 名称
             items:
-            - key: config-data.json
-              path: config-data.json
+            - key: config-data.json        # config map中的key名称
+              path: config-data.json       # 映射后的文件名
 ---
