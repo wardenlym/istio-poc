@@ -1,0 +1,4 @@
+[ZoneTransfer]
+ZoneId=3
+ReferrerUrl=https://istio.io/latest/zh/docs/examples/bookinfo/
+HostUrl=https://istio.io/latest/zh/docs/examples/bookinfo/noistio.svg

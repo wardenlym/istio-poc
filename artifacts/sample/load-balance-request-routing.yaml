@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.istio.io/v1beta1","kind":"VirtualService","metadata":{"annotations":{},"labels":{"kiali_wizard":"request_routing"},"name":"springboot-app-svc","namespace":"default"},"spec":{"hosts":["springboot-app-svc.default.svc.cluster.local"],"http":[{"route":[{"destination":{"host":"springboot-app-svc.default.svc.cluster.local","subset":"v1"},"weight":50},{"destination":{"host":"springboot-app-svc.default.svc.cluster.local","subset":"v2"},"weight":50}]}]}}
+  labels:
+    kiali_wizard: request_routing
+  name: springboot-app-svc
+  namespace: default
+spec:
+  hosts:
+  - springboot-app-svc.default.svc.cluster.local
+  http:
+  - route:
+    - destination:
+        host: springboot-app-svc.default.svc.cluster.local
+        subset: v1
+      weight: 50
+    - destination:
+        host: springboot-app-svc.default.svc.cluster.local
+        subset: v2
+      weight: 50
