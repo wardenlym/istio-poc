@@ -1,0 +1,28 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  labels:
+    kiali_wizard: request_routing
+  name: springboot-app-svc
+  namespace: default
+spec:
+  hosts:
+  - springboot-app-svc.default.svc.cluster.local
+  http:
+  - fault:
+      abort:
+        httpStatus: 500
+        percentage:
+          value: 100
+    match:                # 此次故障注入限制为仅影响header标识的用户 jason。如果您以任何其他用户身份登录，则不会遇到任何延迟。
+    - headers:
+        end-user:
+          exact: jason
+    route:
+    - destination:
+        host: springboot-app-svc.default.svc.cluster.local
+        subset: v1
+  - route:
+    - destination:
+        host: springboot-app-svc.default.svc.cluster.local
+        subset: v2

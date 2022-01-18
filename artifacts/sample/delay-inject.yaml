@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  labels:
+    kiali_wizard: request_routing
+  name: springboot-app-svc
+  namespace: default
+spec:
+  hosts:
+  - springboot-app-svc.default.svc.cluster.local
+  http:
+  - fault:
+      delay:
+        fixedDelay: 7s
+        percentage:
+          value: 100
+    route:
+    - destination:
+        host: springboot-app-svc.default.svc.cluster.local
+        subset: v2

@@ -1,31 +1,3 @@
-但 Spring Cloud 也有一些不可避免的缺点，如基于不同框架的不同组件带来的高应用门槛及学习成本、代码级别对诸多组件进行控制的需求与微服务多语言协作的目标背道而驰。
-
-在我们内部，由于历史原因，不同小组所使用的 API 网关架构不统一，且存在多套 Spring Cloud，给统一管理造成了不便；Spring Cloud 无法实现灰度发布，也给公司业务发布带来了一定不便。更重要的是，作为一家周边游网站，我们经常会举行一些促销活动，面临在业务峰值期资源弹性扩缩容的需求，仅仅依靠 Spring Cloud 也无法实现资源调度来满足业务自动扩缩容的需求。
-
-
-
-从 Spring Cloud 到 UK8S 的过程，也是内部服务模块再次梳理、统一的过程，在此过程中，我们对整体业务架构做了如下改动：
-
-1.去掉原有的 Eureka，改用 Spring Cloud Kubernetes 项目下的 Discovery。Spring Cloud 官方推出的项目 Spring Cloud Kubernetes 提供了通用的接口来调用Kubernetes服务，让 Spring Cloud 和 Spring Boot 程序能够在 Kubernetes 环境中更好运行。在 Kubernetes 环境中，ETCD 已经拥有了服务发现所必要的信息，没有必要再使用 Eureka，通过 Discovery 就能够获取 Kubernetes ETCD 中注册的服务列表进行服务发现。
-
-2.去掉 Feign 负载均衡，改用 Spring Cloud Kubernetes Ribbon。Ribbon 负载均衡模式有 Service / Pod 两种，在 Service 模式下，可以使用 Kubernetes 原生负载均衡，并通过 Istio 实现服务治理。
-
-3. 网关边缘化。网关作为原来的入口，全部去除需要对原有代码进行大规模的改造，我们把原有的网关作为微服务部署在 Kubernetes 内，并利用 Istio 来管理流量入口。同时，我们还去掉了熔断器和智能路由，整体基于 Istio 实现服务治理。
-
-4. 分布式配置 Config 统一为 Apollo。Apollo 能够集中管理应用在不同环境、不同集群的配置，修改后实时推送到应用端，并且具备规范的权限、流程治理等特性。
-
-5. 增加 Prometheus 监控。特别是对 JVM 一些参数和一些定义指标的监控，并基于监控指标实现了 HPA 弹性伸缩。
-
-
-在 Kubernetes中，HPA 通常通过 Pod 的 CPU、内存利用率等实现，但在 Java 中，内存控制通过 JVM 实现，当内存占用过高时，JVM 会进行内存回收，但 JVM 并不会返回给主机或容器，单纯基于 Pod / CPU 指标进行集群的扩缩容并不合理。我们通过 Prometheus 获取 Java 中 http_server_requests_seconds_count（请求数）参数，通过适配器将其转化成 Kubernetes API Server 能识别的参数，并基于这一指标实时动态调整 Pod 的数量。
-
-Istio服务治理
-
-基于应用程序安全性、可观察性、持续部署、弹性伸缩和性能、对开源工具的集成、开源控制平面的支持、方案成熟度等考虑，我们最终选择了 Istio 作为服务治理的方案，主要涉及以下几个部分：1. Istio-gateway 网关：Ingress Gateway 在逻辑上相当于网格边缘的一个负载均衡器，用于接收和处理网格边缘出站和入站的网络连接，其中包含开放端口和TLS的配置等内容，实现集群内部南北流量的治理。
-
-2. Mesh 网关：Istio内部的虚拟Gateway，代表网格内部的所有Sidecar，实现所有网格内部服务之间的互相通信，即东西流量的治理。
-
-3. 流量管理：在去除掉 Spring Cloud 原有的熔断、智能路由等组件后，我们通过对 Kubernetes 集群内部一系列的配置和管理，实现了 http 流量管理的功能。包括使用 Pod签对具体的服务进程进行分组（例如 V1/V2 版本应用）并实现流量调度，通过 Istio 内的 Destination Rule 单独定义服务负载均衡策略，根据来源服务、URL 进行重定向实现目标路由分流等，通过 MenQuota、RedisQuota 进行限流等。
 
 4. 遥测：通过 Prometheus 获取遥测数据，实现灰度项目成功率、东西南北流量区分、服务峰值流量、服务动态拓扑的监控。
 
