@@ -1,0 +1,10 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: httpbin-svc-external
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: httpbin.org
+  ports:
+  - port: 80

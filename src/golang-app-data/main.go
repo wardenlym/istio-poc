@@ -15,7 +15,8 @@ func main() {
 	}
 }
 
-const url string = "http://httpbin.org/get"
+const url1 string = "http://httpbin.org/get"
+const url2 string = "http://httpbin-svc-external/get"
 
 func HelloServer(w http.ResponseWriter, r *http.Request) {
 
@@ -25,7 +26,7 @@ func HelloServer(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url1, nil)
 	if err != nil {
 		fmt.Fprintf(w, "Error: %v\n", err)
 		return
@@ -37,15 +38,29 @@ func HelloServer(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	{
-		addHeader(req, r, "x-request-id")
-		addHeader(req, r, "x-b3-traceid")
-		addHeader(req, r, "x-b3-spanid")
-		addHeader(req, r, "x-b3-parentspanid")
-		addHeader(req, r, "x-b3-sampled")
-		addHeader(req, r, "x-b3-flags")
-		addHeader(req, r, "x-ot-span-context")
+	addHeader(req, r, "x-request-id")
+	addHeader(req, r, "x-b3-traceid")
+	addHeader(req, r, "x-b3-spanid")
+	addHeader(req, r, "x-b3-parentspanid")
+	addHeader(req, r, "x-b3-sampled")
+	addHeader(req, r, "x-b3-flags")
+	addHeader(req, r, "x-ot-span-context")
+
+	http.DefaultClient.Do(req)
+
+	req, err = http.NewRequest("GET", url2, nil)
+	if err != nil {
+		fmt.Fprintf(w, "Error: %v\n", err)
+		return
 	}
+
+	addHeader(req, r, "x-request-id")
+	addHeader(req, r, "x-b3-traceid")
+	addHeader(req, r, "x-b3-spanid")
+	addHeader(req, r, "x-b3-parentspanid")
+	addHeader(req, r, "x-b3-sampled")
+	addHeader(req, r, "x-b3-flags")
+	addHeader(req, r, "x-ot-span-context")
 
 	http.DefaultClient.Do(req)
 

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"os"
 	"path/filepath"
 	"strings"
@@ -85,7 +86,7 @@ const anticaptcha = "http://python-app-anticaptcha-svc:8080/anticaptcha/yk122"
 
 func CaptchaServer(w http.ResponseWriter, r *http.Request) {
 
-	req, err := newfileUploadRequest(anticaptcha, nil, "file", "math.jfif")
+	req, err := newfileUploadRequest(anticaptcha, nil, "img", "math.jfif")
 	if err != nil {
 		fmt.Fprintf(w, "Error: %v\n", err)
 	}
@@ -122,7 +123,13 @@ func CaptchaServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Gateway get from upstream: [\n\n AntiCaptcha: %s \n]\n", "")
+	fmt.Fprintf(w, "Gateway get from upstream: [\n\n AntiCaptcha: %s \n]\n", string(b))
+}
+
+var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
+func escapeQuotes(s string) string {
+	return quoteEscaper.Replace(s)
 }
 
 // Creates a new file upload http request with optional extra params
@@ -135,7 +142,14 @@ func newfileUploadRequest(uri string, params map[string]string, paramName, path 
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile(paramName, filepath.Base(path))
+
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition",
+		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
+			escapeQuotes(paramName), escapeQuotes(filepath.Base(path))))
+	h.Set("Content-Type", "image/jpeg")
+	part, err := writer.CreatePart(h)
+
 	if err != nil {
 		return nil, err
 	}
@@ -151,5 +165,7 @@ func newfileUploadRequest(uri string, params map[string]string, paramName, path 
 
 	req, err := http.NewRequest("POST", uri, body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("accept", "application/json")
+
 	return req, err
 }
